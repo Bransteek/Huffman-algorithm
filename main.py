@@ -4,12 +4,12 @@ import Huffmans_algorithm as ha
 
 
 # Funciones que se ejecutarán al presionar los botones
-def comprimir():
+def compress():
     ha.compress()
 
 
-def descomprimir():
-    print("Botón 2 presionado")
+def decompress():
+    ha.decompress_file()
 
 
 ventana = tk.Tk()
@@ -24,10 +24,10 @@ style.configure(
 )
 
 # Crear dos botones con estilo ttk
-boton1 = ttk.Button(ventana, text="Comprimir", style="TButton", command=comprimir)
+boton1 = ttk.Button(ventana, text="Comprimir", style="TButton", command=compress)
 boton1.pack(padx=20, pady=10)
 
-boton2 = ttk.Button(ventana, text="Descomprimir", style="TButton", command=descomprimir)
+boton2 = ttk.Button(ventana, text="Descomprimir", style="TButton", command=decompress)
 boton2.pack(padx=20, pady=10)
 
 # Ejecutar el loop principal de la ventana
