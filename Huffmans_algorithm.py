@@ -1,5 +1,6 @@
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import pickle
+import os
 
 frequency = {}
 codes = {}
@@ -35,14 +36,15 @@ def compress():
                             frequency[char] += 1
                         else:
                             frequency[char] = 1
-            print(file_path)
 
         except Exception as e:
-            print(f"Error al leer el archivo: {e}")
-    else:
-        print("No se ha seleccionado ningún archivo.")
+            messagebox.showinfo("Error", f"Error al leer el archivo: {e}")
 
-    # conviete la lista en una tupla
+    else:
+        messagebox.showinfo("Error", f"No se ha seleccionado ningún archivo.")
+        return
+
+    # convierte la lista en una tupla
     list_frequency = list(frequency.items())
 
     # organizar la lista
@@ -67,6 +69,8 @@ def compress():
     encrypt(list_nodes.pop(0))
     save_compress_file(file_path, compress_text(file_path), codes)
     # print(codes)
+    messagebox.showinfo("Exito", "Se ha comprimido correctamente")
+    os.remove(file_path)
 
 
 # agregar la el nodo en la parte de la lista donde sea menor o igual
@@ -129,10 +133,18 @@ def decompress_file():
         title="Selecciona un archivo de texto",
         filetypes=[("Archivos de texto", "*.bin")],  # Filtra solo archivos .txt
     )
+
+    if not compress_file_path:
+        messagebox.showinfo("Error", f"No se ha seleccionado ningún archivo.")
+        return
+
     decompress_txt = decompres(compress_file_path)
-    original_path_name = compress_file_path.replace(".bin", "_descomprimido.txt")
+    original_path_name = compress_file_path.replace(".txt.bin", "_descomprimido.txt")
     with open(original_path_name, "w") as archivo:
         archivo.write(decompress_txt)
+
+    messagebox.showinfo("Exito", "Se ha descomprimido correctamente")
+    os.remove(compress_file_path)
 
 
 # Función para descomprimir el archivo
