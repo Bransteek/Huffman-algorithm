@@ -2,7 +2,6 @@ from tkinter import filedialog, messagebox
 import pickle
 import os
 
-frequency = {}
 codes = {}
 
 
@@ -18,6 +17,7 @@ class Node:
 
 
 def compress():
+    frequency = {}
 
     file_path = filedialog.askopenfilename(
         title="Selecciona un archivo de texto",
@@ -70,7 +70,6 @@ def compress():
     save_compress_file(file_path, compress_text(file_path), codes)
     # print(codes)
     messagebox.showinfo("Exito", "Se ha comprimido correctamente")
-    os.remove(file_path)
 
 
 # agregar la el nodo en la parte de la lista donde sea menor o igual
@@ -112,7 +111,8 @@ def compress_text(file_name: str):
 
 
 def save_compress_file(file_name, compressed_txt, codes):
-    with open(file_name + ".bin", "wb") as compress_file:
+    new_file_name = file_name.replace(".txt", ".hff")
+    with open(new_file_name + ".bin", "wb") as compress_file:
         # Escribir los códigos (diccionario) en el archivo
         pickle.dump(codes, compress_file)
 
@@ -139,7 +139,7 @@ def decompress_file():
         return
 
     decompress_txt = decompres(compress_file_path)
-    original_path_name = compress_file_path.replace(".txt.bin", "_descomprimido.txt")
+    original_path_name = compress_file_path.replace(".hff.bin", "_descomprimido.txt")
     with open(original_path_name, "w") as archivo:
         archivo.write(decompress_txt)
 
@@ -162,10 +162,11 @@ def decompres(compress_file_path):
             compresed_txt += f"{byte:08b}"
 
         # Revertir los códigos de Huffman para la descompresión
-        invert_codes = {v: k for k, v in codes.items()}
+        invert_codes = {v: k for k, v in codigos.items()}
 
         decompres_txt = ""
         actual_code = ""
+
         for bit in compresed_txt:
             actual_code += bit
             if actual_code in invert_codes:
