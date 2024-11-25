@@ -1,4 +1,3 @@
-import ast
 import json
 from tkinter import filedialog, messagebox
 
