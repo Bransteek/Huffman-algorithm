@@ -1,3 +1,5 @@
+import ast
+import json
 from tkinter import filedialog, messagebox
 
 codes = {}
@@ -26,7 +28,7 @@ def compress():
     if file_path:
         try:
             # recorre las lineas de texto
-            with open(file_path, "r") as archivo:
+            with open(file_path, "r", encoding="utf-8", errors="replace") as archivo:
                 for row in archivo:
                     # toma la frecuencia de las letras
                     for char in row:
@@ -100,7 +102,7 @@ def encrypt(node: Node, encode=""):
 def compress_text(file_name: str):
     global codes
     compress_txt = ""
-    with open(file_name, "r") as file:
+    with open(file_name, "r", encoding="utf-8", errors="replace") as file:
         for row in file:
             for char in row:
                 compress_txt += codes[char]
@@ -112,7 +114,10 @@ def save_compress_file(file_name, compressed_txt, codes):
     new_file_name = file_name.replace(".txt", ".bin")
     with open(new_file_name, "wb") as compress_file:
         # Escribir los códigos (diccionario) en el archivo
-        compress_file.write(str(codes).encode("utf-8"))
+        # compress_file.write(str(codes).encode("utf-8"))
+
+        separator = b"|"
+        compress_file.write(json.dumps(codes).encode("utf-8") + separator)
 
         # Convertir la secuencia binaria en bytes
         remain_bits = len(compressed_txt) % 8
@@ -138,7 +143,7 @@ def decompress_file():
 
     decompress_txt = decompres(compress_file_path)
     original_path_name = compress_file_path.replace(".bin", "_descomprimido.txt")
-    with open(original_path_name, "w") as archivo:
+    with open(original_path_name, "w", encoding="utf-8") as archivo:
         archivo.write(decompress_txt)
 
     messagebox.showinfo("Exito", "Se ha descomprimido correctamente")
@@ -151,28 +156,22 @@ def decompres(compress_file_path):
         # Leer los códigos (diccionario) del archivo
 
         # Leer los datos comprimidos en forma de bytes
-        compress_bytes = compress_file.read()
+        data = compress_file.read()
 
-        txt = compress_bytes.decode("utf-8", errors="ignore")
+        # Split dictionary and binary data
+        separator = data.find(b"|")
+        if separator == -1:
+            raise ValueError("Invalid file format. Missing separator.")
 
-        # Extraer el texto del diccionario (asumiendo que empieza con '{' y termina con '}')
-        start = txt.find("{")
-        end = txt.rfind("}") + 1  # Asegurar que incluimos el último '}'
+        dict_txt = data[:separator].decode("utf-8")
+        compress_bytes = data[separator + 1 :]
 
-        enc_codes = {}
-
-        if start != -1 and end != -1:
-            dict_txt = txt[start:end]
-            try:
-                # Convertir el texto a un diccionario
-                enc_codes = eval(dict_txt)
-            except Exception as e:
-                print("Error al convertir el texto en diccionario:", e)
-        else:
-            print("No se encontró un diccionario válido en el texto.")
-
-        # Quitar el diccionario del contenido
-        compress_bytes = compress_bytes[end:].strip()
+        # Decode the dictionary
+        try:
+            enc_codes = json.loads(dict_txt)
+        except json.JSONDecodeError as e:
+            print("Error decoding Huffman codes:", e)
+            return ""
 
         compresed_txt = ""
         for byte in compress_bytes:
