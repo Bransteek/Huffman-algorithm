@@ -88,13 +88,12 @@ def append_list(list_huffman: list, node: Node):
 def encrypt(node: Node, encode=""):
     global codes
 
-    node_aux = node
     if node.letter != "":
         codes[node.letter] = encode
         return
 
-    encrypt(node_aux.left, encode + "0")
-    encrypt(node_aux.rigth, encode + "1")
+    encrypt(node.left, encode + "0")
+    encrypt(node.rigth, encode + "1")
 
 
 # pasa el texto en los codigos
@@ -138,7 +137,6 @@ def decompress_file():
         return
 
     decompress_txt = decompres(compress_file_path)
-    # original_path_name = compress_file_path.replace(".hff.bin", "_descomprimido.txt")
     original_path_name = compress_file_path.replace(".bin", "_descomprimido.txt")
     with open(original_path_name, "w") as archivo:
         archivo.write(decompress_txt)
@@ -151,7 +149,6 @@ def decompres(compress_file_path):
 
     with open(compress_file_path, "rb") as compress_file:
         # Leer los códigos (diccionario) del archivo
-        # codigos = pickle.load(compress_file)
 
         # Leer los datos comprimidos en forma de bytes
         compress_bytes = compress_file.read()
