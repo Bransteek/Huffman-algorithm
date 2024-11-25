@@ -1,5 +1,4 @@
 from tkinter import filedialog, messagebox
-import pickle
 import os
 
 codes = {}
@@ -72,13 +71,13 @@ def compress():
     messagebox.showinfo("Exito", "Se ha comprimido correctamente")
 
 
-# agregar la el nodo en la parte de la lista donde sea menor o igual
+# Agrega el nodo donde sea mayor
 def append_list(list_huffman: list, node: Node):
     flag = False
 
     for i in range(len(list_huffman) - 1):
 
-        if list_huffman[i].value <= node.value < list_huffman[i + 1].value:
+        if node.value < list_huffman[i + 1].value:
             list_huffman.insert(i, node)
             flag = True
             break
@@ -91,7 +90,7 @@ def encrypt(node: Node, encode=""):
     global codes
 
     node_aux = node
-    if node.letter is not None and node.letter != "":
+    if node.letter != "":
         codes[node.letter] = encode
         return
 
@@ -99,6 +98,7 @@ def encrypt(node: Node, encode=""):
     encrypt(node_aux.rigth, encode + "1")
 
 
+# pasa el texto en los codigos
 def compress_text(file_name: str):
     global codes
     compress_txt = ""
@@ -111,10 +111,10 @@ def compress_text(file_name: str):
 
 
 def save_compress_file(file_name, compressed_txt, codes):
-    new_file_name = file_name.replace(".txt", ".hff")
-    with open(new_file_name + ".bin", "wb") as compress_file:
+    new_file_name = file_name.replace(".txt", ".bin")
+    with open(new_file_name, "wb") as compress_file:
         # Escribir los códigos (diccionario) en el archivo
-        pickle.dump(codes, compress_file)
+        compress_file.write(str(codes).encode("utf-8"))
 
         # Convertir la secuencia binaria en bytes
         remain_bits = len(compressed_txt) % 8
@@ -139,12 +139,12 @@ def decompress_file():
         return
 
     decompress_txt = decompres(compress_file_path)
-    original_path_name = compress_file_path.replace(".hff.bin", "_descomprimido.txt")
+    # original_path_name = compress_file_path.replace(".hff.bin", "_descomprimido.txt")
+    original_path_name = compress_file_path.replace(".bin", "_descomprimido.txt")
     with open(original_path_name, "w") as archivo:
         archivo.write(decompress_txt)
 
     messagebox.showinfo("Exito", "Se ha descomprimido correctamente")
-    os.remove(compress_file_path)
 
 
 # Función para descomprimir el archivo
@@ -152,17 +152,38 @@ def decompres(compress_file_path):
 
     with open(compress_file_path, "rb") as compress_file:
         # Leer los códigos (diccionario) del archivo
-        codigos = pickle.load(compress_file)
+        # codigos = pickle.load(compress_file)
 
         # Leer los datos comprimidos en forma de bytes
         compress_bytes = compress_file.read()
+
+        txt = compress_bytes.decode("utf-8", errors="ignore")
+
+        # Extraer el texto del diccionario (asumiendo que empieza con '{' y termina con '}')
+        start = txt.find("{")
+        end = txt.rfind("}") + 1  # Asegurar que incluimos el último '}'
+
+        enc_codes = {}
+
+        if start != -1 and end != -1:
+            dict_txt = txt[start:end]
+            try:
+                # Convertir el texto a un diccionario
+                enc_codes = eval(dict_txt)
+            except Exception as e:
+                print("Error al convertir el texto en diccionario:", e)
+        else:
+            print("No se encontró un diccionario válido en el texto.")
+
+        # Quitar el diccionario del contenido
+        compress_bytes = compress_bytes[end:].strip()
 
         compresed_txt = ""
         for byte in compress_bytes:
             compresed_txt += f"{byte:08b}"
 
         # Revertir los códigos de Huffman para la descompresión
-        invert_codes = {v: k for k, v in codigos.items()}
+        invert_codes = {v: k for k, v in enc_codes.items()}
 
         decompres_txt = ""
         actual_code = ""
