@@ -1,5 +1,4 @@
 from tkinter import filedialog, messagebox
-import os
 
 codes = {}
 

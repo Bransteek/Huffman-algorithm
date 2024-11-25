@@ -12,10 +12,10 @@ def decompress():
     ha.decompress_file()
 
 
-ventana = tk.Tk()
-ventana.title("Mimic")
-ventana.geometry("300x200")  # Tamaño de la ventana
-ventana.configure(bg="#f0f0f0")  # Color de fondo
+window = tk.Tk()
+window.title("Mimic")
+window.geometry("300x200")  # Tamaño de la ventana
+window.configure(bg="#f0f0f0")  # Color de fondo
 
 # Crear un estilo personalizado para los botones usando ttk
 style = ttk.Style()
@@ -24,11 +24,11 @@ style.configure(
 )
 
 # Crear dos botones con estilo ttk
-boton1 = ttk.Button(ventana, text="Comprimir", style="TButton", command=compress)
+boton1 = ttk.Button(window, text="Comprimir", style="TButton", command=compress)
 boton1.pack(padx=20, pady=10)
 
-boton2 = ttk.Button(ventana, text="Descomprimir", style="TButton", command=decompress)
+boton2 = ttk.Button(window, text="Descomprimir", style="TButton", command=decompress)
 boton2.pack(padx=20, pady=10)
 
 # Ejecutar el loop principal de la ventana
-ventana.mainloop()
+window.mainloop()
